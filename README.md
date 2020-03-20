@@ -5,7 +5,7 @@ repository with a bunch of related Terraform modules.
 
 It can also be used to find any cyclic dependency amongst the Terraform modules.
 
-Requires Python 3.7 and above.
+Requires Python 3.6 and above.
 
 ## Example run
 

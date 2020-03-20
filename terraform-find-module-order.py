@@ -3,7 +3,30 @@ import argparse
 import collections as c
 import os
 import re
-from typing import List, OrderedDict, Set
+import sys
+from typing import List, Set
+
+#
+# Version dependent checks and imports
+#
+
+# Python 3.6 is required for f-string
+SYS_ERROR_MSG = "terraform-find-module-order must be run with Python 3.6 and above"
+
+if sys.version_info[0] < 3 or sys.version_info[1] < 6:
+    print(SYS_ERROR_MSG, file=sys.stderr, flush=True)
+    sys.exit(1)
+
+# Not a good practice, but we need to commonize OrderedDict -> Dict
+# so that Python 3.6 and above can work
+if sys.version_info[1] < 7:
+    from typing import Dict
+else:
+    from typing import OrderedDict as Dict
+
+#
+# End of checks and imports
+#
 
 TF_REMOTE_STATE_DATA_REGEX_STR = r'data "terraform_remote_state" "(\w+)"'
 TF_REMOTE_STATE_DATA_RE = re.compile(TF_REMOTE_STATE_DATA_REGEX_STR)
@@ -39,7 +62,7 @@ def form_dep_string(chain: List[str]) -> str:
     return " < ".join(chain)
 
 
-def find_order(mods_x_states: OrderedDict[str, Set[str]]) -> List[str]:
+def find_order(mods_x_states: Dict[str, Set[str]]) -> List[str]:
     def impl(mod: str, local_chain: List[str], global_chain: List[str]) -> List[str]:
         # Cyclic dep found as module was found again in local chain
         if mod in local_chain:
